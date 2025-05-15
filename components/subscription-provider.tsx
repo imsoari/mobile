@@ -44,15 +44,25 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Fetch subscription status from API
     const fetchSubscription = async () => {
       try {
-        // TODO: Replace with actual API call
         const response = await fetch("/api/subscription")
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
         const data = await response.json()
-        setTier(data.tier)
+        
+        if (data.tier && (data.tier === "rent-free" || data.tier === "main-character")) {
+          setTier(data.tier)
+        } else {
+          console.warn("Invalid tier received from API, defaulting to rent-free")
+          setTier("rent-free")
+        }
       } catch (error) {
         console.error("Failed to fetch subscription status:", error)
+        // On error, keep the default "rent-free" tier
       } finally {
         setIsLoading(false)
       }
