@@ -1,4 +1,3 @@
-```typescript
 "use client"
 
 import { useState } from "react"
@@ -32,6 +31,40 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { colors } from "@/lib/colors"
+
+// Sample date ideas data
+const dateIdeas = [
+  {
+    id: 1,
+    title: "Cozy Coffee Date",
+    description: "Enjoy artisanal coffee and pastries at a local café",
+    imageUrl: "https://images.pexels.com/photos/1695052/pexels-photo-1695052.jpeg",
+    type: "Casual",
+    distance: "0.5 miles",
+    time: "1-2 hours",
+    price: "$",
+    rating: "4.8",
+    reviews: "324",
+    bestTime: "Morning",
+    tags: ["coffee"],
+    category: "indoor"
+  },
+  {
+    id: 2,
+    title: "Art Gallery Tour",
+    description: "Explore local art exhibits and discuss your interpretations",
+    imageUrl: "https://images.pexels.com/photos/1674049/pexels-photo-1674049.jpeg",
+    type: "Cultural",
+    distance: "2.1 miles",
+    time: "2-3 hours",
+    price: "$$",
+    rating: "4.6",
+    reviews: "156",
+    bestTime: "Afternoon",
+    tags: ["art"],
+    category: "indoor"
+  }
+]
 
 // Categories with visual styling
 const categories = [
@@ -320,4 +353,3 @@ export default function DateNitePage() {
     </div>
   )
 }
-```
