@@ -44,7 +44,8 @@ const tiers = [
       "Priority support",
       "Early access to new features",
     ],
-    cta: "Upgrade Now",
+    cta: "Upgrade with Apple Pay",
+    ctaAndroid: "Upgrade with Google Pay",
     color: colors.purple,
     icon: Crown,
     popular: true,
@@ -55,29 +56,98 @@ export default function PricingPage() {
   const router = useRouter()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isAndroid, setIsAndroid] = useState(false)
+
+  // Detect Android device on mount
+  React.useEffect(() => {
+    setIsAndroid(/Android/i.test(navigator.userAgent))
+  }, [])
 
   const handleSubscribe = async (tier: string) => {
     setSelectedTier(tier)
     setIsLoading(true)
 
     try {
-      // Create checkout session
-      const response = await fetch("/api/stripe/checkout_session", {
+      // Create payment session
+      const response = await fetch("/api/stripe/payment_session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           tier,
+          paymentMethod: isAndroid ? "google_pay" : "apple_pay",
         }),
       })
 
       const data = await response.json()
 
-      // Redirect to Stripe Checkout
-      window.location.href = data.url
+      // Trigger native payment sheet
+      if (isAndroid) {
+        // Google Pay flow
+        const paymentRequest = {
+          apiVersion: 2,
+          apiVersionMinor: 0,
+          allowedPaymentMethods: [{
+            type: "CARD",
+            parameters: {
+              allowedAuthMethods: ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+              allowedCardNetworks: ["MASTERCARD", "VISA"]
+            }
+          }],
+          merchantInfo: {
+            merchantId: process.env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID,
+            merchantName: "Soari"
+          },
+          transactionInfo: {
+            totalPriceStatus: "FINAL",
+            totalPrice: "9.99",
+            currencyCode: "USD"
+          }
+        }
+
+        // @ts-ignore
+        const paymentsClient = new google.payments.api.PaymentsClient()
+        const paymentData = await paymentsClient.loadPaymentData(paymentRequest)
+        
+        // Send payment data to backend
+        await fetch("/api/stripe/confirm_payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentData, sessionId: data.sessionId })
+        })
+      } else {
+        // Apple Pay flow
+        const session = new ApplePaySession(3, {
+          countryCode: "US",
+          currencyCode: "USD",
+          supportedNetworks: ["visa", "masterCard"],
+          merchantCapabilities: ["supports3DS"],
+          total: {
+            label: "Soari Main Character",
+            amount: "9.99"
+          }
+        })
+
+        session.onpaymentauthorized = async (event) => {
+          // Send payment data to backend
+          await fetch("/api/stripe/confirm_payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              payment: event.payment,
+              sessionId: data.sessionId 
+            })
+          })
+          
+          session.completePayment(ApplePaySession.STATUS_SUCCESS)
+          router.push("/dashboard")
+        }
+
+        session.begin()
+      }
     } catch (error) {
-      console.error("Failed to create checkout session:", error)
+      console.error("Payment failed:", error)
     } finally {
       setIsLoading(false)
     }
@@ -86,7 +156,6 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="mx-auto max-w-5xl">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-medium mb-2">Choose Your Story</h1>
           <p className="text-muted-foreground">
@@ -94,7 +163,6 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-8">
           {tiers.map((tier) => (
             <Card
@@ -176,13 +244,14 @@ export default function PricingPage() {
               >
                 {isLoading && selectedTier === tier.name
                   ? "Processing..."
+                  : isAndroid && tier.ctaAndroid
+                  ? tier.ctaAndroid
                   : tier.cta}
               </Button>
             </Card>
           ))}
         </div>
 
-        {/* Features Comparison */}
         <div className="mt-16">
           <h2 className="text-2xl font-medium mb-8 text-center">
             Detailed Feature Comparison
