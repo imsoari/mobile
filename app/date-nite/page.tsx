@@ -1,3 +1,4 @@
+```typescript
 "use client"
 
 import { useState } from "react"
@@ -20,81 +21,19 @@ import {
   Star,
   Search,
   Filter,
+  Bookmark,
+  ChevronDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Slider } from "@/components/ui/slider"
+import { Switch } from "@/components/ui/switch"
 import { colors } from "@/lib/colors"
 
-// Sample date ideas for demonstration
-const dateIdeas = [
-  {
-    id: "1",
-    title: "Sunset Picnic at Highland Park",
-    type: "Romantic",
-    time: "Evening",
-    distance: "0.8 miles away",
-    description: "Perfect spot for a cozy evening with city views. Known for amazing sunsets and quiet atmosphere.",
-    price: "$$",
-    weather: "Clear skies expected",
-    bestTime: "6:30 PM - 8:00 PM",
-    category: "outdoor",
-    tags: ["scenic", "romantic", "quiet"],
-    rating: 4.8,
-    reviews: 124,
-    imageUrl: "https://images.pexels.com/photos/5122174/pexels-photo-5122174.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-  },
-  {
-    id: "2",
-    title: "Art Gallery Night",
-    type: "Cultural",
-    time: "Evening",
-    distance: "1.2 miles away",
-    description: "Local artists showcase with wine tasting. Great for meaningful conversations.",
-    price: "$$",
-    weather: "Indoor venue",
-    bestTime: "7:00 PM - 9:00 PM",
-    category: "indoor",
-    tags: ["art", "wine", "cultural"],
-    rating: 4.6,
-    reviews: 89,
-    imageUrl: "https://images.pexels.com/photos/1839919/pexels-photo-1839919.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-  },
-  {
-    id: "3",
-    title: "Cozy Coffee & Pastries",
-    type: "Casual",
-    time: "Morning",
-    distance: "0.3 miles away",
-    description: "Charming local café known for artisanal pastries and specialty coffee. Perfect for morning conversations.",
-    price: "$",
-    weather: "Indoor venue",
-    bestTime: "9:00 AM - 11:00 AM",
-    category: "indoor",
-    tags: ["coffee", "casual", "cozy"],
-    rating: 4.9,
-    reviews: 256,
-    imageUrl: "https://images.pexels.com/photos/1813466/pexels-photo-1813466.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-  },
-  {
-    id: "4",
-    title: "Botanical Garden Walk",
-    type: "Adventure",
-    time: "Afternoon",
-    distance: "2.1 miles away",
-    description: "Beautiful gardens with seasonal blooms. Features hidden benches and peaceful walking paths.",
-    price: "$",
-    weather: "Sunny, 72°F",
-    bestTime: "2:00 PM - 4:00 PM",
-    category: "outdoor",
-    tags: ["nature", "peaceful", "active"],
-    rating: 4.7,
-    reviews: 178,
-    imageUrl: "https://images.pexels.com/photos/158028/bellingrath-gardens-alabama-landscape-scenic-158028.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-  }
-]
-
+// Categories with visual styling
 const categories = [
   { icon: Coffee, label: "Coffee", color: colors.blue },
   { icon: Utensils, label: "Dining", color: colors.purple },
@@ -104,23 +43,48 @@ const categories = [
   { icon: Trees, label: "Outdoor", color: colors.green },
 ]
 
+// Relationship stages for filtering
+const relationshipStages = [
+  "Talking Stage",
+  "Early Dating",
+  "Situationship",
+  "Established",
+  "Rekindling",
+]
+
+// Price ranges
+const priceRanges = ["$", "$$", "$$$", "$$$$"]
+
 export default function DateNitePage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [timeOfDay, setTimeOfDay] = useState<"day" | "night">("day")
+  const [showFilters, setShowFilters] = useState(false)
+  const [filters, setFilters] = useState({
+    maxDistance: 10,
+    priceRange: ["$", "$$"],
+    relationshipStage: "Early Dating",
+    indoor: true,
+    outdoor: true,
+  })
 
+  // Filter the date ideas based on all criteria
   const filteredIdeas = dateIdeas.filter(idea => {
     const matchesSearch = idea.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       idea.description.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = !selectedCategory || idea.tags.includes(selectedCategory.toLowerCase())
-    return matchesSearch && matchesCategory
+    const matchesPrice = filters.priceRange.includes(idea.price)
+    const matchesLocation = (filters.indoor && idea.category === "indoor") ||
+      (filters.outdoor && idea.category === "outdoor")
+    const matchesDistance = parseFloat(idea.distance) <= filters.maxDistance
+    return matchesSearch && matchesCategory && matchesPrice && matchesLocation && matchesDistance
   })
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white/80 dark:bg-[#272727]/80 backdrop-blur-lg safe-top">
+      <header className="sticky top-0 z-10 flex items-center justify-between p-4 glass-effect safe-top">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-5 w-5" />
@@ -130,17 +94,22 @@ export default function DateNitePage() {
             <p className="text-xs text-muted-foreground">premium feature</p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTimeOfDay(timeOfDay === "day" ? "night" : "day")}
-        >
-          {timeOfDay === "day" ? (
-            <Sun className="h-5 w-5 text-[#F8CE97]" />
-          ) : (
-            <Moon className="h-5 w-5 text-[#9FBCCF]" />
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTimeOfDay(timeOfDay === "day" ? "night" : "day")}
+          >
+            {timeOfDay === "day" ? (
+              <Sun className="h-5 w-5 text-[#F8CE97]" />
+            ) : (
+              <Moon className="h-5 w-5 text-[#9FBCCF]" />
+            )}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => router.push("/date-nite/saved")}>
+            <Bookmark className="h-5 w-5" />
+          </Button>
+        </div>
       </header>
 
       {/* Search and Filters */}
@@ -161,7 +130,7 @@ export default function DateNitePage() {
             <Button
               key={label}
               variant={selectedCategory === label ? "default" : "outline"}
-              className="flex-shrink-0"
+              className="flex-shrink-0 hover-lift"
               style={{
                 backgroundColor: selectedCategory === label ? `${color}20` : undefined,
                 color: selectedCategory === label ? color : undefined,
@@ -173,20 +142,50 @@ export default function DateNitePage() {
             </Button>
           ))}
         </div>
+
+        {/* Active Filters */}
+        {(filters.priceRange.length < priceRanges.length || filters.maxDistance < 10) && (
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {filters.priceRange.length < priceRanges.length && (
+              <Badge variant="outline" className="flex-shrink-0">
+                {filters.priceRange.join(", ")}
+              </Badge>
+            )}
+            {filters.maxDistance < 10 && (
+              <Badge variant="outline" className="flex-shrink-0">
+                Within {filters.maxDistance} miles
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Date Ideas */}
-      <div className="flex-1 p-4 space-y-4">
+      {/* Date Ideas Grid */}
+      <div className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
         {filteredIdeas.map((idea) => (
           <Card
             key={idea.id}
-            className="overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer"
+            className="overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer hover-lift"
             onClick={() => router.push(`/date-nite/${idea.id}`)}
           >
             <div
-              className="h-48 bg-cover bg-center"
+              className="h-48 bg-cover bg-center relative"
               style={{ backgroundImage: `url(${idea.imageUrl})` }}
-            />
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 text-white hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // Toggle save
+                }}
+              >
+                <Bookmark className="h-5 w-5" />
+              </Button>
+            </div>
+            
             <div className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">{idea.title}</h3>
@@ -201,7 +200,7 @@ export default function DateNitePage() {
                 </Badge>
               </div>
 
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground line-clamp-2">
                 {idea.description}
               </p>
 
@@ -233,15 +232,92 @@ export default function DateNitePage() {
         ))}
       </div>
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 safe-bottom">
-        <Button
-          size="icon"
-          className="h-12 w-12 rounded-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 shadow-lg"
-        >
-          <Filter className="h-5 w-5" />
-        </Button>
-      </div>
+      {/* Filter Popover */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            size="icon"
+            className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 shadow-lg safe-bottom"
+          >
+            <Filter className="h-5 w-5" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-4" side="top" align="end">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h4 className="font-medium">Distance</h4>
+              <Slider
+                value={[filters.maxDistance]}
+                max={10}
+                step={0.5}
+                onValueChange={([value]) => setFilters({ ...filters, maxDistance: value })}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>0 miles</span>
+                <span>{filters.maxDistance} miles</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-medium">Price Range</h4>
+              <div className="flex gap-2">
+                {priceRanges.map((price) => (
+                  <Button
+                    key={price}
+                    variant={filters.priceRange.includes(price) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const newPriceRange = filters.priceRange.includes(price)
+                        ? filters.priceRange.filter(p => p !== price)
+                        : [...filters.priceRange, price]
+                      setFilters({ ...filters, priceRange: newPriceRange })
+                    }}
+                  >
+                    {price}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-medium">Relationship Stage</h4>
+              <div className="grid grid-cols-2 gap-2">
+                {relationshipStages.map((stage) => (
+                  <Button
+                    key={stage}
+                    variant={filters.relationshipStage === stage ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setFilters({ ...filters, relationshipStage: stage })}
+                  >
+                    {stage}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-medium">Location Type</h4>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <Switch
+                    checked={filters.indoor}
+                    onCheckedChange={(checked) => setFilters({ ...filters, indoor: checked })}
+                  />
+                  <span>Indoor</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <Switch
+                    checked={filters.outdoor}
+                    onCheckedChange={(checked) => setFilters({ ...filters, outdoor: checked })}
+                  />
+                  <span>Outdoor</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }
+```
