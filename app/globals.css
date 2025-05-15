@@ -23,7 +23,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 200 33% 71%;
-    --radius: 1rem;
+    --radius: 1.2rem;
   }
 
   .dark {
@@ -95,6 +95,21 @@
     :root {
       scroll-behavior: smooth;
     }
+  }
+
+  /* Remove borders from cards and other elements */
+  .card, 
+  .input,
+  .button,
+  .avatar,
+  .badge {
+    @apply border-0 shadow-none;
+  }
+
+  /* Custom backdrop blur */
+  .backdrop-blur {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 }
 
