@@ -15,6 +15,7 @@ import {
   Users,
   MessageCircle,
   Sparkles,
+  MapPin,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -59,6 +60,32 @@ const sampleSituations = [
     ghostScore: 15,
     relationshipType: "talking",
   },
+]
+
+// Sample date ideas for demonstration
+const dateIdeas = [
+  {
+    id: "1",
+    title: "Sunset Picnic at Highland Park",
+    type: "Romantic",
+    time: "Evening",
+    distance: "0.8 miles away",
+    description: "Perfect spot for a cozy evening with city views. Known for amazing sunsets and quiet atmosphere.",
+    price: "$$",
+    weather: "Clear skies expected",
+    bestTime: "6:30 PM - 8:00 PM"
+  },
+  {
+    id: "2",
+    title: "Art Gallery Night",
+    type: "Cultural",
+    time: "Evening",
+    distance: "1.2 miles away",
+    description: "Local artists showcase with wine tasting. Great for meaningful conversations.",
+    price: "$$",
+    weather: "Indoor venue",
+    bestTime: "7:00 PM - 9:00 PM"
+  }
 ]
 
 const getGhostLevel = (score: number) => {
@@ -335,6 +362,75 @@ export default function DashboardPage() {
             <Button variant="outline" className="w-full text-xs" onClick={() => router.push("/new-message")}>
               <Plus className="h-3.5 w-3.5 mr-1.5" />
               New DM
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Date Nite Card */}
+        <Card className="bg-white/80 dark:bg-[#272727]/80 backdrop-blur-md border-[#9FBCCF]/20 dark:border-[#F5FAFA]/10">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-medium flex items-center justify-between">
+              <div className="flex items-center">
+                <Sparkles className="h-4 w-4 mr-2 text-[#F8CE97]" />
+                Date Nite
+              </div>
+              <Badge className="bg-[#F8CE97]/20 text-[#F8CE97] text-xs">
+                Premium
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              {dateIdeas.map((idea) => (
+                <div
+                  key={idea.id}
+                  className="p-4 rounded-xl bg-[#F8CE97]/10 dark:bg-[#F8CE97]/5 space-y-3 cursor-pointer hover:bg-[#F8CE97]/20 dark:hover:bg-[#F8CE97]/10 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium">{idea.title}</h3>
+                    <Badge
+                      className="text-xs"
+                      style={{
+                        backgroundColor: `${colors.accent}20`,
+                        color: colors.accent,
+                      }}
+                    >
+                      {idea.type}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-xs text-[#272727]/60 dark:text-[#F5FAFA]/60">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>{idea.time}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      <span>{idea.distance}</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-sm text-[#272727]/70 dark:text-[#F5FAFA]/70">
+                    {idea.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-xs">
+                    <span>{idea.price}</span>
+                    <span>{idea.bestTime}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+          <CardFooter className="pt-0">
+            <Button
+              variant="outline"
+              className="w-full text-xs"
+              onClick={() => router.push("/date-nite")}
+            >
+              <Calendar className="h-3.5 w-3.5 mr-1.5" />
+              Discover More Date Ideas
+              <ArrowRight className="h-3.5 w-3.5 ml-auto" />
             </Button>
           </CardFooter>
         </Card>
