@@ -1,104 +1,258 @@
+```tsx
 "use client"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Ghost, MessageCircle, Heart, Sparkles } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { Progress } from "@/components/ui/progress"
 
 const onboardingSteps = [
   {
     id: "welcome",
-    title: "hey bestie!",
-    description: "ready to level up your situationship game?",
-    icon: <Sparkles className="h-12 w-12 text-[#9FBCCF]" />,
-    cta: "fr fr",
+    title: "welcome to the vibe check",
+    subtitle: "your cheat code to emotional clarity fr fr",
+    fields: [
+      {
+        id: "name",
+        label: "drop your name bestie",
+        type: "text",
+        placeholder: "drop your name bestie",
+      }
+    ],
+    bullets: [
+      "drop your thoughts, we'll check the vibes",
+      "analyze text messages & get the tea",
+      "no ads, just straight facts"
+    ]
   },
   {
-    id: "ghost-meter",
-    title: "ghost meter check",
-    description: "catch the vibes before they ghost. no cap, we'll help you see it coming.",
-    icon: <Ghost className="h-12 w-12 text-[#B3A9C6]" />,
-    cta: "that's lowkey genius",
+    id: "email",
+    title: "let's lock in!",
+    subtitle: "time to claim your spot fr",
+    fields: [
+      {
+        id: "email",
+        label: "email",
+        type: "email",
+        placeholder: "your email"
+      }
+    ]
   },
   {
-    id: "chat",
-    title: "spill the tea",
-    description: "soari's got your back with that main character energy. get advice that hits different.",
-    icon: <MessageCircle className="h-12 w-12 text-[#C9EDA8]" />,
-    cta: "periodt!",
+    id: "password",
+    title: "secure your vibe",
+    fields: [
+      {
+        id: "password",
+        label: "password",
+        type: "password",
+        placeholder: "minimum 6 characters"
+      },
+      {
+        id: "confirmPassword",
+        label: "confirm password",
+        type: "password",
+        placeholder: "type it again"
+      }
+    ]
   },
   {
-    id: "situations",
-    title: "track your vibe",
-    description: "keep it real with all your situationships. we're here for the plot twists.",
-    icon: <Heart className="h-12 w-12 text-[#F8CE97]" />,
-    cta: "let's get this bread",
-  },
+    id: "username",
+    title: "drop your aesthetic",
+    subtitle: "we'll set the username vibe for you",
+    fields: [
+      {
+        id: "username",
+        label: "username (max 8 characters)",
+        type: "text",
+        placeholder: "@ username",
+        prefix: "@"
+      }
+    ],
+    info: [
+      "custom profile photos are a paid feature",
+      "custom username permanently available with paid plans"
+    ]
+  }
 ]
 
 export default function OnboardingPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
-  const [open, setOpen] = useState(true)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    username: ""
+  })
+  const [showPassword, setShowPassword] = useState({
+    password: false,
+    confirmPassword: false
+  })
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleNext = () => {
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleNext = async () => {
     if (currentStep < onboardingSteps.length - 1) {
       setCurrentStep(currentStep + 1)
     } else {
-      router.push("/dashboard")
+      setIsLoading(true)
+      try {
+        // Here you would typically call your API to create the account
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        router.push("/dashboard")
+      } catch (error) {
+        console.error("Failed to create account:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
-  const progress = ((currentStep + 1) / onboardingSteps.length) * 100
+  const currentStepData = onboardingSteps[currentStep]
 
   return (
-    <div className="min-h-[100dvh] bg-background flex items-center justify-center p-4">
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl">
-          {/* Progress bar */}
-          <div className="px-4 pt-4 pb-2">
-            <Progress value={progress} className="h-1" />
+    <div className="min-h-[100dvh] bg-[#272727] text-[#F5FAFA] flex items-center justify-center p-4">
+      <Dialog open>
+        <DialogContent className="sm:max-w-[425px] bg-[#272727] text-[#F5FAFA] border-0 shadow-2xl">
+          {/* Progress dots */}
+          <div className="flex justify-center gap-2 mb-8">
+            {onboardingSteps.map((_, index) => (
+              <div
+                key={index}
+                className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                  index === currentStep
+                    ? "bg-[#C9EDA8] scale-125"
+                    : index < currentStep
+                    ? "bg-[#F5FAFA]/40"
+                    : "bg-[#F5FAFA]/20"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <img src="/soari-logo.svg" alt="Soari" className="h-8" />
           </div>
 
           {/* Content */}
-          <div className="p-6 flex flex-col items-center text-center space-y-6">
-            {/* Icon */}
-            <div className="rounded-2xl bg-[#9FBCCF]/10 dark:bg-[#9FBCCF]/5 p-6">
-              {onboardingSteps[currentStep].icon}
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <h1 className="text-2xl font-light">{currentStepData.title}</h1>
+              {currentStepData.subtitle && (
+                <p className="text-[#F5FAFA]/60">{currentStepData.subtitle}</p>
+              )}
             </div>
 
-            {/* Text */}
-            <div className="space-y-2">
-              <h1 className="text-2xl font-medium">
-                {onboardingSteps[currentStep].title}
-              </h1>
-              <p className="text-muted-foreground">
-                {onboardingSteps[currentStep].description}
-              </p>
+            {/* Bullets */}
+            {currentStepData.bullets && (
+              <div className="space-y-3">
+                {currentStepData.bullets.map((bullet, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="h-5 w-5 rounded-full bg-[#C9EDA8]/20 flex items-center justify-center">
+                      <span className="text-[#C9EDA8]">✓</span>
+                    </div>
+                    <span className="text-[#F5FAFA]/80">{bullet}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Fields */}
+            <div className="space-y-4">
+              {currentStepData.fields.map((field) => (
+                <div key={field.id} className="space-y-2">
+                  <label className="text-[#F5FAFA]/60 text-sm">
+                    {field.label}
+                  </label>
+                  <div className="relative">
+                    {field.prefix && (
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#F5FAFA]/40">
+                        {field.prefix}
+                      </span>
+                    )}
+                    <Input
+                      type={
+                        field.type === "password"
+                          ? showPassword[field.id as keyof typeof showPassword]
+                            ? "text"
+                            : "password"
+                          : field.type
+                      }
+                      placeholder={field.placeholder}
+                      value={formData[field.id as keyof typeof formData]}
+                      onChange={(e) => handleInputChange(field.id, e.target.value)}
+                      className={`bg-[#F5FAFA]/5 border-0 text-[#F5FAFA] placeholder:text-[#F5FAFA]/40 h-12 ${
+                        field.prefix ? "pl-8" : ""
+                      }`}
+                    />
+                    {field.type === "password" && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 hover:bg-transparent"
+                        onClick={() =>
+                          setShowPassword(prev => ({
+                            ...prev,
+                            [field.id]: !prev[field.id as keyof typeof showPassword]
+                          }))
+                        }
+                      >
+                        {showPassword[field.id as keyof typeof showPassword] ? (
+                          <EyeOff className="h-4 w-4 text-[#F5FAFA]/60" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-[#F5FAFA]/60" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Button */}
-            <Button
-              className="w-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 text-white h-12 text-base"
-              onClick={handleNext}
-            >
-              {onboardingSteps[currentStep].cta}
-            </Button>
+            {/* Info text */}
+            {currentStepData.info && (
+              <div className="space-y-1">
+                {currentStepData.info.map((text, index) => (
+                  <p key={index} className="text-sm text-[#F5FAFA]/40 text-center">
+                    {text}
+                  </p>
+                ))}
+              </div>
+            )}
 
-            {currentStep < onboardingSteps.length - 1 && (
+            {/* Actions */}
+            <div className="flex gap-3 pt-4">
               <Button
-                variant="ghost"
-                className="w-full text-sm"
+                variant="outline"
+                className="flex-1 bg-[#F5FAFA]/5 border-0 text-[#F5FAFA] hover:bg-[#F5FAFA]/10"
                 onClick={() => router.push("/dashboard")}
               >
-                skip the tea
+                oh wait!
               </Button>
-            )}
+              <Button
+                className="flex-1 bg-[#C9EDA8] hover:bg-[#C9EDA8]/90 text-[#272727]"
+                onClick={handleNext}
+                disabled={isLoading}
+              >
+                {isLoading ? "loading..." : "next"}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
     </div>
   )
 }
+```
