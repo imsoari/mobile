@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Search, Plus, Check, CheckCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -75,7 +75,8 @@ const sampleConversations = [
 
 export default function MessagesPage() {
   const router = useRouter()
-  const [searchQuery, setSearchQuery] = useState("")
+  const searchParams = useSearchParams()
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")
 
   const filteredConversations = sampleConversations.filter(
     (conversation) =>
@@ -96,10 +97,21 @@ export default function MessagesPage() {
     }
   }
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+    const params = new URLSearchParams(searchParams)
+    if (value) {
+      params.set("q", value)
+    } else {
+      params.delete("q")
+    }
+    router.replace(`/messages?${params.toString()}`)
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-[#F5FAFA] dark:bg-[#272727] text-[#272727] dark:text-[#F5FAFA]">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#9FBCCF]/10 dark:border-[#F5FAFA]/10 bg-white/80 dark:bg-[#272727]/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#9FBCCF]/10 dark:border-[#F5FAFA]/10 bg-white/80 dark:bg-[#272727]/80 backdrop-blur-lg safe-top">
         <div className="flex items-center">
           <Button variant="ghost" size="icon" onClick={() => router.push("/situations")} className="mr-2">
             <ArrowLeft className="h-5 w-5" />
@@ -124,7 +136,7 @@ export default function MessagesPage() {
             placeholder="Search dms..."
             className="pl-10"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
       </div>
@@ -180,7 +192,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6">
+      <div className="fixed bottom-6 right-6 safe-bottom">
         <Button
           size="icon"
           className="h-12 w-12 rounded-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 shadow-lg"
