@@ -2,12 +2,15 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Search, Ghost } from "lucide-react"
+import { Plus, Search, Ghost, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/progress"
+import { Card } from "@/components/ui/card"
 import { AddSituationModal } from "@/components/add-situation-modal"
+import { colors } from "@/lib/colors"
 
 // Sample data for demonstration
 const sampleSituations = [
@@ -22,6 +25,8 @@ const sampleSituations = [
     avatar: "A",
     color: "#9FBCCF",
     ghostScore: 75,
+    riskLevel: "high",
+    weeklyTrend: 15,
   },
   {
     id: "2",
@@ -34,6 +39,8 @@ const sampleSituations = [
     avatar: "R",
     color: "#B3A9C6",
     ghostScore: 60,
+    riskLevel: "medium",
+    weeklyTrend: 5,
   },
   {
     id: "3",
@@ -46,8 +53,17 @@ const sampleSituations = [
     avatar: "T",
     color: "#C9E7CB",
     ghostScore: 15,
+    riskLevel: "low",
+    weeklyTrend: -5,
   },
 ]
+
+const getGhostLevel = (score: number) => {
+  if (score < 30) return { level: "low", color: colors.green }
+  if (score < 60) return { level: "medium", color: colors.blue }
+  if (score < 85) return { level: "high", color: colors.purple }
+  return { level: "extreme", color: colors.dark }
+}
 
 export default function SituationsPage() {
   const router = useRouter()
@@ -57,20 +73,26 @@ export default function SituationsPage() {
   const filteredSituations = sampleSituations.filter(
     (situation) =>
       situation.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      situation.nickname.toLowerCase().includes(searchQuery.toLowerCase()),
+      situation.nickname.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const getGhostBadge = (score: number) => {
-    if (score < 30) return { label: "low", color: "#C9EDA8" }
-    if (score < 60) return { label: "medium", color: "#9FBCCF" }
-    if (score < 85) return { label: "high", color: "#B3A9C6" }
-    return { label: "extreme", color: "#272727" }
+  // Calculate overall ghost metrics
+  const overallMetrics = {
+    averageScore: Math.round(
+      sampleSituations.reduce((acc, curr) => acc + curr.ghostScore, 0) / sampleSituations.length
+    ),
+    lowRisk: sampleSituations.filter(s => s.ghostScore < 30).length,
+    mediumRisk: sampleSituations.filter(s => s.ghostScore >= 30 && s.ghostScore < 60).length,
+    highRisk: sampleSituations.filter(s => s.ghostScore >= 60).length,
+    weeklyTrend: Math.round(
+      sampleSituations.reduce((acc, curr) => acc + curr.weeklyTrend, 0) / sampleSituations.length
+    ),
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F5FAFA] dark:bg-[#272727] text-[#272727] dark:text-[#F5FAFA]">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#9FBCCF]/10 dark:border-[#F5FAFA]/10 bg-white/80 dark:bg-[#272727]/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#9FBCCF]/10 dark:border-[#F5FAFA]/10 bg-white/80 dark:bg-[#272727]/80 backdrop-blur-lg safe-top">
         <h1 className="text-xl font-light">situations</h1>
         <Button
           size="sm"
@@ -83,64 +105,66 @@ export default function SituationsPage() {
       </header>
 
       {/* Ghost Meter Overview */}
-      <div className="p-4 border-b border-[#9FBCCF]/10 dark:border-[#F5FAFA]/10 bg-white/60 dark:bg-[#272727]/60 backdrop-blur-md">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center">
-            <Ghost className="h-5 w-5 text-[#9FBCCF] mr-2" />
+      <Card className="mx-4 mt-4 p-4 bg-white/80 dark:bg-[#272727]/80 backdrop-blur-md border-[#9FBCCF]/20 dark:border-[#F5FAFA]/10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Ghost className="h-5 w-5 text-[#9FBCCF]" />
             <h2 className="text-base font-medium">ghost meter</h2>
           </div>
-          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => router.push("/ghost-insights")}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => router.push("/ghost-insights")}
+          >
             View Insights
           </Button>
         </div>
 
-        <div className="space-y-3">
-          {/* Average Ghost Score */}
+        <div className="space-y-4">
+          {/* Score and Progress */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-[#272727]/60 dark:text-[#F5FAFA]/60">average ghost score</span>
-              <span className="text-xs font-medium">50/100</span>
-            </div>
-            <div className="relative h-2 bg-gradient-to-r from-[#C9EDA8]/50 via-[#9FBCCF]/50 to-[#B3A9C6]/50 rounded-full overflow-hidden">
-              <div
-                className="absolute top-0 bottom-0 left-0 w-1 bg-white dark:bg-[#272727] transition-all duration-500"
-                style={{ left: `50%`, transform: "translateX(-50%)" }}
-              ></div>
-              <div
-                className="absolute top-0 bottom-0 left-0 flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-[#272727] border-2 transition-all duration-500 shadow-md"
-                style={{ left: `50%`, transform: "translateX(-50%)", borderColor: "#9FBCCF" }}
-              >
-                <Ghost className="h-2 w-2 text-[#9FBCCF]" />
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-[#272727]/70 dark:text-[#F5FAFA]/70">
+                average ghost score
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{overallMetrics.averageScore}/100</span>
+                <div className="flex items-center text-xs">
+                  <TrendingUp className={`h-3 w-3 mr-0.5 ${overallMetrics.weeklyTrend > 0 ? 'text-[#E57373]' : 'text-[#C9EDA8]'}`} />
+                  <span className={overallMetrics.weeklyTrend > 0 ? 'text-[#E57373]' : 'text-[#C9EDA8]'}>
+                    {Math.abs(overallMetrics.weeklyTrend)}%
+                  </span>
+                </div>
               </div>
             </div>
+            <Progress
+              value={overallMetrics.averageScore}
+              className="h-1.5"
+              style={{
+                backgroundColor: `${colors.blue}20`,
+                "--progress-color": getGhostLevel(overallMetrics.averageScore).color,
+              } as React.CSSProperties}
+            />
           </div>
 
-          {/* Ghost Status Summary */}
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-2 rounded-lg bg-[#C9EDA8]/20 dark:bg-[#C9EDA8]/10">
-              <p className="text-lg font-medium text-[#C9EDA8]">1</p>
+          {/* Risk Level Summary */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="p-2 rounded-lg bg-[#C9EDA8]/20 dark:bg-[#C9EDA8]/10 text-center">
+              <p className="text-lg font-medium text-[#C9EDA8]">{overallMetrics.lowRisk}</p>
               <p className="text-xs text-[#272727]/70 dark:text-[#F5FAFA]/70">low risk</p>
             </div>
-            <div className="p-2 rounded-lg bg-[#9FBCCF]/20 dark:bg-[#9FBCCF]/10">
-              <p className="text-lg font-medium text-[#9FBCCF]">1</p>
+            <div className="p-2 rounded-lg bg-[#9FBCCF]/20 dark:bg-[#9FBCCF]/10 text-center">
+              <p className="text-lg font-medium text-[#9FBCCF]">{overallMetrics.mediumRisk}</p>
               <p className="text-xs text-[#272727]/70 dark:text-[#F5FAFA]/70">medium risk</p>
             </div>
-            <div className="p-2 rounded-lg bg-[#B3A9C6]/20 dark:bg-[#B3A9C6]/10">
-              <p className="text-lg font-medium text-[#B3A9C6]">1</p>
+            <div className="p-2 rounded-lg bg-[#B3A9C6]/20 dark:bg-[#B3A9C6]/10 text-center">
+              <p className="text-lg font-medium text-[#B3A9C6]">{overallMetrics.highRisk}</p>
               <p className="text-xs text-[#272727]/70 dark:text-[#F5FAFA]/70">high risk</p>
             </div>
           </div>
-
-          {/* Weekly Trend */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-[#272727]/60 dark:text-[#F5FAFA]/60">weekly trend</span>
-            <div className="flex items-center">
-              <span className="text-xs text-[#E57373] mr-1">↑ 15%</span>
-              <span className="text-xs text-[#272727]/60 dark:text-[#F5FAFA]/60">from last week</span>
-            </div>
-          </div>
         </div>
-      </div>
+      </Card>
 
       {/* Search */}
       <div className="p-4 border-b border-[#9FBCCF]/10 dark:border-[#F5FAFA]/10">
@@ -164,7 +188,7 @@ export default function SituationsPage() {
             </div>
           ) : (
             filteredSituations.map((situation) => {
-              const ghostBadge = getGhostBadge(situation.ghostScore)
+              const ghostLevel = getGhostLevel(situation.ghostScore)
 
               return (
                 <div
@@ -197,12 +221,12 @@ export default function SituationsPage() {
                           <Badge
                             className="flex items-center space-x-1 text-xs"
                             style={{
-                              backgroundColor: `${ghostBadge.color}20`,
-                              color: ghostBadge.color,
+                              backgroundColor: `${ghostLevel.color}20`,
+                              color: ghostLevel.color,
                             }}
                           >
                             <Ghost className="h-3 w-3 mr-1" />
-                            <span>{ghostBadge.label}</span>
+                            <span>{ghostLevel.level}</span>
                           </Badge>
                         </div>
                       </div>
@@ -230,7 +254,7 @@ export default function SituationsPage() {
       </div>
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6">
+      <div className="fixed bottom-6 right-6 safe-bottom">
         <Button
           size="icon"
           className="h-12 w-12 rounded-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 shadow-lg"
