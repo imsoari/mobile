@@ -2,95 +2,66 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Ghost, MessageCircle, Heart, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-
-const features = [
-  {
-    title: "Ghost Meter",
-    description: "Track response patterns and get insights on your relationships",
-    icon: Ghost,
-    color: "#9FBCCF",
-  },
-  {
-    title: "AI Relationship Coach",
-    description: "Get personalized advice from Soari, your AI companion",
-    icon: MessageCircle,
-    color: "#B3A9C6",
-  },
-  {
-    title: "Situation Tracking",
-    description: "Keep track of your relationships and their unique dynamics",
-    icon: Heart,
-    color: "#C9EDA8",
-  },
-  {
-    title: "Smart Insights",
-    description: "Understand patterns and make better relationship decisions",
-    icon: Sparkles,
-    color: "#F8CE97",
-  },
-]
+import { Input } from "@/components/ui/input"
 
 export default function LandingPage() {
   const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      // Here you would typically call your API to save the email
+      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulated API call
+      router.push("/register")
+    } catch (error) {
+      console.error("Failed to submit email:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Hero Section */}
-      <main className="flex-1 flex flex-col">
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h1 className="text-4xl font-bold mb-4">
-              Navigate Modern Dating with Confidence
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Your personal AI companion for understanding relationships, tracking communication patterns, and making better dating decisions.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg"
-                className="bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 text-white"
-                onClick={() => router.push("/register")}
-              >
-                Get Started Free
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                onClick={() => router.push("/login")}
-              >
-                Sign In
-              </Button>
-            </div>
-          </div>
+    <div className="min-h-[100dvh] bg-[#272727] text-[#F5FAFA] flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-md space-y-12">
+        {/* Logo */}
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-light tracking-wider mb-4">let's lock</h1>
+          <p className="text-lg text-[#F5FAFA]/60">
+            time to claim your spot
+          </p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto px-8 pb-16">
-          {features.map((feature) => (
-            <Card key={feature.title} className="p-6">
-              <div className="flex items-start gap-4">
-                <div 
-                  className="p-3 rounded-xl"
-                  style={{ backgroundColor: `${feature.color}20` }}
-                >
-                  <feature.icon 
-                    className="h-6 w-6"
-                    style={{ color: feature.color }}
-                  />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </main>
+        {/* Email Form */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="space-y-4">
+            <label htmlFor="email" className="block text-lg text-[#F5FAFA]/80">
+              email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="h-14 bg-[#F5FAFA]/5 border-0 rounded-2xl text-[#F5FAFA] placeholder:text-[#F5FAFA]/40 focus-visible:ring-[#C9EDA8] focus-visible:ring-offset-[#272727]"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full h-14 text-lg font-normal bg-[#C9EDA8] hover:bg-[#C9EDA8]/90 text-[#272727] rounded-2xl transition-all duration-200"
+          >
+            {isSubmitting ? "one sec..." : "oh wait!"}
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }
