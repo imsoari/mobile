@@ -180,7 +180,7 @@ export default function SituationsPage() {
       </div>
 
       {/* Situations List */}
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-4 pb-20">
         <div className="space-y-3">
           {filteredSituations.length === 0 ? (
             <div className="text-center py-8 text-[#272727]/60 dark:text-[#F5FAFA]/60">
@@ -193,7 +193,7 @@ export default function SituationsPage() {
               return (
                 <div
                   key={situation.id}
-                  className="bg-white/80 dark:bg-[#272727]/80 backdrop-blur-md border border-[#9FBCCF]/20 dark:border-[#F5FAFA]/10 rounded-lg p-3 cursor-pointer"
+                  className="bg-white/80 dark:bg-[#272727]/80 backdrop-blur-md border border-[#9FBCCF]/20 dark:border-[#F5FAFA]/10 rounded-xl p-3 cursor-pointer"
                   onClick={() => router.push(`/situations/${situation.id}`)}
                 >
                   <div className="flex items-center space-x-3">
@@ -251,17 +251,6 @@ export default function SituationsPage() {
             })
           )}
         </div>
-      </div>
-
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 safe-bottom">
-        <Button
-          size="icon"
-          className="h-12 w-12 rounded-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 shadow-lg"
-          onClick={() => setShowAddModal(true)}
-        >
-          <Plus className="h-5 w-5" />
-        </Button>
       </div>
 
       {/* Add Situation Modal */}
