@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 180 20% 98%;
+    --foreground: 0 0% 15%;
+
+    --card: 180 20% 98%;
+    --card-foreground: 0 0% 15%;
+
+    --popover: 180 20% 98%;
+    --popover-foreground: 0 0% 15%;
+
+    --primary: 200 33% 71%;
+    --primary-foreground: 180 20% 98%;
+
+    --secondary: 270 15% 72%;
+    --secondary-foreground: 180 20% 98%;
+
+    --accent: 100 35% 79%;
+    --accent-foreground: 0 0% 15%;
+
+    --muted: 210 20% 90%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 200 33% 71%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 15%;
+    --foreground: 180 20% 98%;
+
+    --card: 0 0% 15%;
+    --card-foreground: 180 20% 98%;
+
+    --popover: 0 0% 15%;
+    --popover-foreground: 180 20% 98%;
+
+    --primary: 200 33% 71%;
+    --primary-foreground: 180 20% 98%;
+
+    --secondary: 270 15% 72%;
+    --secondary-foreground: 180 20% 98%;
+
+    --accent: 100 35% 79%;
+    --accent-foreground: 0 0% 15%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 200 33% 71%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Sun icon animations */
+@keyframes sun-rays {
+  0% {
+    filter: drop-shadow(0 0 0.5px rgba(252, 211, 77, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 2px rgba(252, 211, 77, 0.8));
+  }
+  100% {
+    filter: drop-shadow(0 0 0.5px rgba(252, 211, 77, 0.5));
+  }
+}
+
+@keyframes sun-rotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes sun-hover {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Moon icon animations */
+@keyframes moon-glow {
+  0% {
+    filter: drop-shadow(0 0 0.5px rgba(192, 132, 252, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 2px rgba(192, 132, 252, 0.8));
+  }
+  100% {
+    filter: drop-shadow(0 0 0.5px rgba(192, 132, 252, 0.5));
+  }
+}
+
+@keyframes moon-wobble {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Apply animations to icons */
+.sun-icon {
+  animation: sun-rays 3s infinite ease-in-out;
+}
+
+.sun-icon:hover {
+  animation: sun-hover 1s infinite ease-in-out;
+}
+
+.moon-icon {
+  animation: moon-glow 3s infinite ease-in-out;
+}
+
+.moon-icon:hover {
+  animation: moon-wobble 2s infinite ease-in-out;
+}
+
+/* Mini icons in dropdown */
+.sun-icon-mini:hover {
+  animation: sun-rotate 4s infinite linear;
+}
+
+.moon-icon-mini:hover {
+  animation: moon-wobble 2s infinite ease-in-out;
+}
+
+/* Ensure animations work properly with theme transitions */
+html.dark .sun-icon {
+  animation: none;
+}
+
+html:not(.dark) .moon-icon {
+  animation: none;
+}
