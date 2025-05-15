@@ -21,7 +21,6 @@ import {
   Search,
   Filter,
   Bookmark,
-  ChevronDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -93,7 +92,6 @@ export default function DateNitePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [timeOfDay, setTimeOfDay] = useState<"day" | "night">("day")
-  const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
     maxDistance: 10,
     priceRange: ["$", "$$"],
@@ -265,7 +263,7 @@ export default function DateNitePage() {
         ))}
       </div>
 
-      {/* Filter Popover */}
+      {/* Filter Button */}
       <Popover>
         <PopoverTrigger asChild>
           <Button
