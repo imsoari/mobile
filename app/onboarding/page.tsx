@@ -4,40 +4,44 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Ghost, MessageCircle, Heart, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
-import { colors } from "@/lib/colors"
 
 const onboardingSteps = [
   {
     id: "welcome",
-    title: "welcome to soari",
-    description: "your personal relationship companion for navigating modern dating",
+    title: "hey bestie!",
+    description: "ready to level up your situationship game?",
     icon: <Sparkles className="h-12 w-12 text-[#9FBCCF]" />,
+    cta: "fr fr",
   },
   {
     id: "ghost-meter",
-    title: "ghost meter",
-    description: "track response patterns and get insights on your relationships",
+    title: "ghost meter check",
+    description: "catch the vibes before they ghost. no cap, we'll help you see it coming.",
     icon: <Ghost className="h-12 w-12 text-[#B3A9C6]" />,
+    cta: "that's lowkey genius",
   },
   {
     id: "chat",
-    title: "chat with soari",
-    description: "get personalized advice and support when you need it",
+    title: "spill the tea",
+    description: "soari's got your back with that main character energy. get advice that hits different.",
     icon: <MessageCircle className="h-12 w-12 text-[#C9EDA8]" />,
+    cta: "periodt!",
   },
   {
     id: "situations",
-    title: "manage situations",
-    description: "keep track of your relationships and their unique dynamics",
+    title: "track your vibe",
+    description: "keep it real with all your situationships. we're here for the plot twists.",
     icon: <Heart className="h-12 w-12 text-[#F8CE97]" />,
+    cta: "let's get this bread",
   },
 ]
 
 export default function OnboardingPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
+  const [open, setOpen] = useState(true)
 
   const handleNext = () => {
     if (currentStep < onboardingSteps.length - 1) {
@@ -50,16 +54,16 @@ export default function OnboardingPage() {
   const progress = ((currentStep + 1) / onboardingSteps.length) * 100
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background text-foreground antialiased">
-      <main className="flex-1 flex flex-col">
-        {/* Progress bar */}
-        <div className="px-4 pt-4 pb-2">
-          <Progress value={progress} className="h-1" />
-        </div>
+    <div className="min-h-[100dvh] bg-background flex items-center justify-center p-4">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl">
+          {/* Progress bar */}
+          <div className="px-4 pt-4 pb-2">
+            <Progress value={progress} className="h-1" />
+          </div>
 
-        {/* Content */}
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <Card className="w-full max-w-md mx-auto p-8 flex flex-col items-center justify-center space-y-6 bg-white/80 dark:bg-[#272727]/80 backdrop-blur-md border-[#9FBCCF]/20 dark:border-[#F5FAFA]/10">
+          {/* Content */}
+          <div className="p-6 flex flex-col items-center text-center space-y-6">
             {/* Icon */}
             <div className="rounded-2xl bg-[#9FBCCF]/10 dark:bg-[#9FBCCF]/5 p-6">
               {onboardingSteps[currentStep].icon}
@@ -74,29 +78,27 @@ export default function OnboardingPage() {
                 {onboardingSteps[currentStep].description}
               </p>
             </div>
-          </Card>
-        </div>
 
-        {/* Navigation */}
-        <div className="p-4 safe-bottom">
-          <Button
-            className="w-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 text-white h-12 text-base"
-            onClick={handleNext}
-          >
-            {currentStep < onboardingSteps.length - 1 ? "Continue" : "Get Started"}
-          </Button>
-          
-          {currentStep < onboardingSteps.length - 1 && (
+            {/* Button */}
             <Button
-              variant="ghost"
-              className="w-full mt-2 text-sm"
-              onClick={() => router.push("/dashboard")}
+              className="w-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 text-white h-12 text-base"
+              onClick={handleNext}
             >
-              Skip
+              {onboardingSteps[currentStep].cta}
             </Button>
-          )}
-        </div>
-      </main>
+
+            {currentStep < onboardingSteps.length - 1 && (
+              <Button
+                variant="ghost"
+                className="w-full text-sm"
+                onClick={() => router.push("/dashboard")}
+              >
+                skip the tea
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
