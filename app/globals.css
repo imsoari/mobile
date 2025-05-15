@@ -97,19 +97,29 @@
     }
   }
 
-  /* Remove borders from cards and other elements */
+  /* Remove borders and add shadows */
   .card, 
   .input,
   .button,
   .avatar,
   .badge {
-    @apply border-0 shadow-none;
+    @apply border-0 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)];
   }
 
   /* Custom backdrop blur */
   .backdrop-blur {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Glass effect */
+  .glass-effect {
+    @apply bg-white/80 dark:bg-[#272727]/80 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)];
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    @apply transition-all duration-200 ease-out hover:translate-y-[-2px] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_16px_rgba(0,0,0,0.3)];
   }
 }
 
