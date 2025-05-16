@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff, ArrowRight, Check, Loader2 } from "lucide-react"
+import { Eye, EyeOff, ArrowRight, Check, Loader2, Heart, Ghost, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
 interface OnboardingStep {
@@ -19,49 +18,72 @@ interface OnboardingStep {
 const steps: OnboardingStep[] = [
   {
     id: "welcome",
-    title: "welcome bestie! 👋",
-    subtitle: "ready to level up your dating game?",
+    title: "hey bestie! 💖",
+    subtitle: "ready to level up your dating game? let's get you started!",
+  },
+  {
+    id: "features",
+    title: "here's what you'll get",
+    subtitle: "everything you need to navigate your situationships",
   },
   {
     id: "name",
-    title: "what's your name?",
-    subtitle: "we'll use this to personalize your experience",
+    title: "what should we call you?",
+    subtitle: "your name is just between us bestie",
     validate: (value) => {
-      if (!value) return "name is required bestie!"
-      if (value.length < 2) return "name's too short bestie!"
+      if (!value) return "bestie, we need your name!"
+      if (value.length < 2) return "name's a bit too short!"
       return undefined
     },
   },
   {
     id: "email",
-    title: "what's your email?",
-    subtitle: "we'll keep you in the loop",
+    title: "drop your email",
+    subtitle: "we'll keep your updates on lock",
     validate: (value) => {
-      if (!value) return "email is required bestie!"
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "that's not a valid email bestie!"
+      if (!value) return "bestie, we need your email!"
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "hmm, that email doesn't look right"
       return undefined
     },
   },
   {
     id: "password",
-    title: "create a password",
-    subtitle: "make it strong and memorable",
+    title: "secure the bag",
+    subtitle: "create a password that's giving main character energy",
     validate: (value) => {
-      if (!value) return "password is required bestie!"
-      if (value.length < 8) return "password needs to be at least 8 characters bestie!"
+      if (!value) return "bestie, we need a password!"
+      if (value.length < 8) return "make it at least 8 characters for extra security"
       return undefined
     },
   },
   {
     id: "username",
-    title: "pick a username",
-    subtitle: "make it uniquely you",
+    title: "pick your @ handle",
+    subtitle: "make it iconic, make it you",
     validate: (value) => {
-      if (!value) return "username is required bestie!"
-      if (value.length < 3) return "username's too short bestie!"
-      if (!/^[a-zA-Z0-9_]+$/.test(value)) return "username can only contain letters, numbers, and underscores bestie!"
+      if (!value) return "bestie, pick a username!"
+      if (value.length < 3) return "make it a bit longer!"
+      if (!/^[a-zA-Z0-9_]+$/.test(value)) return "keep it simple - letters, numbers, and underscores only"
       return undefined
     },
+  },
+]
+
+const features = [
+  {
+    icon: Ghost,
+    title: "Ghost Meter",
+    description: "Know when they're about to ghost before it happens",
+  },
+  {
+    icon: MessageCircle,
+    title: "Soari Chat",
+    description: "Get relationship advice from your AI bestie",
+  },
+  {
+    icon: Heart,
+    title: "Date Ideas",
+    description: "Never run out of creative date suggestions",
   },
 ]
 
@@ -79,15 +101,14 @@ export default function OnboardingPage() {
   const [error, setError] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
 
-  // Auto-show modal after a short delay
   useEffect(() => {
     const timer = setTimeout(() => setShowModal(true), 500)
     return () => clearTimeout(timer)
   }, [])
 
   const handleNext = async () => {
-    if (currentStep === 0) {
-      setCurrentStep(1)
+    if (currentStep <= 1) {
+      setCurrentStep(prev => prev + 1)
       return
     }
 
@@ -103,11 +124,10 @@ export default function OnboardingPage() {
     if (currentStep === steps.length - 1) {
       setIsLoading(true)
       try {
-        // Here you would normally send the data to your backend
-        await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500))
         router.push("/pricing")
       } catch (error) {
-        setError("something went wrong bestie! try again?")
+        setError("oops! something's not working. try again?")
       } finally {
         setIsLoading(false)
       }
@@ -125,10 +145,17 @@ export default function OnboardingPage() {
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#272727] via-[#272727] to-[#9FBCCF]/20" />
 
+      {/* Animated background shapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full bg-[#9FBCCF]/5 animate-pulse" 
+          style={{ animationDuration: "4s" }} />
+        <div className="absolute top-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-[#B3A9C6]/5 animate-pulse"
+          style={{ animationDuration: "6s", animationDelay: "1s" }} />
+      </div>
+
       {/* Onboarding Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-[425px] bg-white/10 backdrop-blur-xl border-white/20">
-          <DialogTitle className="sr-only">Onboarding</DialogTitle>
           {/* Progress bar */}
           <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden rounded-t-lg">
             <div
@@ -148,12 +175,31 @@ export default function OnboardingPage() {
               </p>
             </div>
 
+            {/* Features showcase */}
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                {features.map((feature, index) => (
+                  <div
+                    key={feature.title}
+                    className="flex items-start space-x-4 p-4 rounded-lg bg-white/5 transition-all duration-300 hover:bg-white/10"
+                    style={{ animationDelay: `${index * 150}ms` }}
+                  >
+                    <feature.icon className="h-5 w-5 mt-0.5 text-[#9FBCCF]" />
+                    <div>
+                      <h3 className="font-medium">{feature.title}</h3>
+                      <p className="text-sm text-white/60">{feature.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Input field */}
-            {currentStep > 0 && (
+            {currentStep > 1 && (
               <div className="space-y-4">
                 <div className="relative">
                   <Input
-                    type={currentStep === 3 && !showPassword ? "password" : "text"}
+                    type={currentStep === 4 && !showPassword ? "password" : "text"}
                     placeholder={`enter your ${steps[currentStep].id}`}
                     value={formData[steps[currentStep].id as keyof typeof formData]}
                     onChange={(e) => {
@@ -168,7 +214,7 @@ export default function OnboardingPage() {
                       error && "border-red-400/50 focus-visible:ring-red-400/50"
                     )}
                   />
-                  {currentStep === 3 && (
+                  {currentStep === 4 && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -198,7 +244,7 @@ export default function OnboardingPage() {
                 ) : currentStep === steps.length - 1 ? (
                   <>
                     <Check className="h-4 w-4 mr-2" />
-                    let's go!
+                    let's get started!
                   </>
                 ) : (
                   <>
