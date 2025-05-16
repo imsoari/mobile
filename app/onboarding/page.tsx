@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Eye, EyeOff, ArrowRight, Check, Loader2, Heart, Ghost, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
 interface OnboardingStep {
@@ -167,9 +167,9 @@ export default function OnboardingPage() {
           <div className="pt-6 space-y-8">
             {/* Step content */}
             <div className="space-y-2 text-center">
-              <h2 className="text-2xl font-medium tracking-tight">
+              <DialogTitle className="text-2xl font-medium tracking-tight">
                 {steps[currentStep].title}
-              </h2>
+              </DialogTitle>
               <p className="text-white/60">
                 {steps[currentStep].subtitle}
               </p>
