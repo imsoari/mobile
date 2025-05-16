@@ -10,25 +10,28 @@ export default function AuthPage() {
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-background items-center justify-center p-4">
-      {/* Logo */}
-      <div className="mb-12">
+      {/* Logo and Subtitle */}
+      <div className="mb-16 text-center">
         <img
           src={theme === "dark" 
             ? "https://github.com/QRUMN/soairlogos/blob/main/transparent-soari%20eggshell%20logo.png?raw=true"
             : "https://github.com/QRUMN/soairlogos/blob/main/transparent-soari%20muted%20rasin%20logo.png?raw=true"
           }
           alt="Soari"
-          className="w-32 h-32 object-contain"
+          className="w-32 h-32 object-contain mb-4"
         />
+        <p className="text-sm text-muted-foreground">
+          the cheat code to clarity
+        </p>
       </div>
 
       {/* Auth Buttons */}
-      <div className="w-full max-w-[280px] space-y-3">
+      <div className="w-full max-w-[280px] space-y-4">
         <Button
           className="w-full bg-[#C9EDA8] hover:bg-[#C9EDA8]/90 text-[#272727] text-base h-12"
           onClick={() => router.push("/onboarding")}
         >
-          i need access
+          link up
         </Button>
         <Button
           variant="outline"
