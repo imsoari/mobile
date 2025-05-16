@@ -1,102 +1,226 @@
+```tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Ghost, MessageCircle, Heart, Sparkles } from "lucide-react"
+import { Eye, EyeOff, ArrowRight, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { colors } from "@/lib/colors"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
 
-const onboardingSteps = [
+interface OnboardingStep {
+  id: string
+  title: string
+  subtitle: string
+  validate?: (value: string) => string | undefined
+}
+
+const steps: OnboardingStep[] = [
   {
     id: "welcome",
-    title: "welcome to soari",
-    description: "your personal relationship companion for navigating modern dating",
-    icon: <Sparkles className="h-12 w-12 text-[#9FBCCF]" />,
+    title: "welcome bestie! 👋",
+    subtitle: "ready to level up your dating game?",
   },
   {
-    id: "ghost-meter",
-    title: "ghost meter",
-    description: "track response patterns and get insights on your relationships",
-    icon: <Ghost className="h-12 w-12 text-[#B3A9C6]" />,
+    id: "name",
+    title: "what's your name?",
+    subtitle: "we'll use this to personalize your experience",
+    validate: (value) => {
+      if (!value) return "name is required bestie!"
+      if (value.length < 2) return "name's too short bestie!"
+      return undefined
+    },
   },
   {
-    id: "chat",
-    title: "chat with soari",
-    description: "get personalized advice and support when you need it",
-    icon: <MessageCircle className="h-12 w-12 text-[#C9EDA8]" />,
+    id: "email",
+    title: "what's your email?",
+    subtitle: "we'll keep you in the loop",
+    validate: (value) => {
+      if (!value) return "email is required bestie!"
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "that's not a valid email bestie!"
+      return undefined
+    },
   },
   {
-    id: "situations",
-    title: "manage situations",
-    description: "keep track of your relationships and their unique dynamics",
-    icon: <Heart className="h-12 w-12 text-[#F8CE97]" />,
+    id: "password",
+    title: "create a password",
+    subtitle: "make it strong and memorable",
+    validate: (value) => {
+      if (!value) return "password is required bestie!"
+      if (value.length < 8) return "password needs to be at least 8 characters bestie!"
+      return undefined
+    },
+  },
+  {
+    id: "username",
+    title: "pick a username",
+    subtitle: "make it uniquely you",
+    validate: (value) => {
+      if (!value) return "username is required bestie!"
+      if (value.length < 3) return "username's too short bestie!"
+      if (!/^[a-zA-Z0-9_]+$/.test(value)) return "username can only contain letters, numbers, and underscores bestie!"
+      return undefined
+    },
   },
 ]
 
 export default function OnboardingPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
+  const [showModal, setShowModal] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    username: "",
+  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState<string>()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleNext = () => {
-    if (currentStep < onboardingSteps.length - 1) {
-      setCurrentStep(currentStep + 1)
-    } else {
-      router.push("/dashboard")
+  // Auto-show modal after a short delay
+  useEffect(() => {
+    const timer = setTimeout(() => setShowModal(true), 500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleNext = async () => {
+    if (currentStep === 0) {
+      setCurrentStep(1)
+      return
     }
+
+    const step = steps[currentStep]
+    const value = formData[step.id as keyof typeof formData]
+    const error = step.validate?.(value)
+
+    if (error) {
+      setError(error)
+      return
+    }
+
+    if (currentStep === steps.length - 1) {
+      setIsLoading(true)
+      try {
+        // Here you would normally send the data to your backend
+        await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate API call
+        router.push("/pricing")
+      } catch (error) {
+        setError("something went wrong bestie! try again?")
+      } finally {
+        setIsLoading(false)
+      }
+      return
+    }
+
+    setCurrentStep(prev => prev + 1)
+    setError(undefined)
   }
 
-  const progress = ((currentStep + 1) / onboardingSteps.length) * 100
+  const progress = ((currentStep + 1) / steps.length) * 100
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background text-foreground antialiased">
-      <main className="flex-1 flex flex-col">
-        {/* Progress bar */}
-        <div className="px-4 pt-4 pb-2">
-          <Progress value={progress} className="h-1" />
-        </div>
+    <div className="relative min-h-[100dvh] bg-[#272727] text-white overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#272727] via-[#272727] to-[#9FBCCF]/20" />
 
-        {/* Content */}
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <Card className="w-full max-w-md mx-auto p-8 flex flex-col items-center justify-center space-y-6 bg-white/80 dark:bg-[#272727]/80 backdrop-blur-md border-[#9FBCCF]/20 dark:border-[#F5FAFA]/10">
-            {/* Icon */}
-            <div className="rounded-2xl bg-[#9FBCCF]/10 dark:bg-[#9FBCCF]/5 p-6">
-              {onboardingSteps[currentStep].icon}
-            </div>
+      {/* Onboarding Modal */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-[425px] bg-white/10 backdrop-blur-xl border-white/20">
+          {/* Progress bar */}
+          <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden rounded-t-lg">
+            <div
+              className="h-full bg-[#9FBCCF] transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
 
-            {/* Text */}
-            <div className="space-y-2">
-              <h1 className="text-2xl font-medium">
-                {onboardingSteps[currentStep].title}
-              </h1>
-              <p className="text-muted-foreground">
-                {onboardingSteps[currentStep].description}
+          <div className="pt-6 space-y-8">
+            {/* Step content */}
+            <div className="space-y-2 text-center">
+              <h2 className="text-2xl font-medium tracking-tight">
+                {steps[currentStep].title}
+              </h2>
+              <p className="text-white/60">
+                {steps[currentStep].subtitle}
               </p>
             </div>
-          </Card>
-        </div>
 
-        {/* Navigation */}
-        <div className="p-4 safe-bottom">
-          <Button
-            className="w-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 text-white h-12 text-base"
-            onClick={handleNext}
-          >
-            {currentStep < onboardingSteps.length - 1 ? "Continue" : "Get Started"}
-          </Button>
-          
-          {currentStep < onboardingSteps.length - 1 && (
-            <Button
-              variant="ghost"
-              className="w-full mt-2 text-sm"
-              onClick={() => router.push("/dashboard")}
-            >
-              Skip
-            </Button>
-          )}
-        </div>
-      </main>
+            {/* Input field */}
+            {currentStep > 0 && (
+              <div className="space-y-4">
+                <div className="relative">
+                  <Input
+                    type={currentStep === 3 && !showPassword ? "password" : "text"}
+                    placeholder={`enter your ${steps[currentStep].id}`}
+                    value={formData[steps[currentStep].id as keyof typeof formData]}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        [steps[currentStep].id]: e.target.value
+                      }))
+                      setError(undefined)
+                    }}
+                    className={cn(
+                      "bg-white/5 border-white/10 text-white placeholder:text-white/40",
+                      error && "border-red-400/50 focus-visible:ring-red-400/50"
+                    )}
+                  />
+                  {currentStep === 3 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 text-white/40 hover:text-white"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  )}
+                </div>
+                {error && (
+                  <p className="text-sm text-red-400">{error}</p>
+                )}
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="space-y-2">
+              <Button
+                className="w-full bg-[#9FBCCF] hover:bg-[#9FBCCF]/90 text-white"
+                onClick={handleNext}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : currentStep === steps.length - 1 ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    let's go!
+                  </>
+                ) : (
+                  <>
+                    next
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </>
+                )}
+              </Button>
+              {currentStep > 0 && (
+                <Button
+                  variant="ghost"
+                  className="w-full text-white/60 hover:text-white hover:bg-white/5"
+                  onClick={() => setCurrentStep(prev => prev - 1)}
+                >
+                  back
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
+```
