@@ -1,6 +1,6 @@
-```tsx
 "use client"
 
+import React from 'react'
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff } from "lucide-react"
@@ -255,4 +255,3 @@ export default function OnboardingPage() {
     </div>
   )
 }
-```
