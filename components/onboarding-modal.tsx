@@ -143,7 +143,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
             </div>
 
             <div className="space-y-4">
-              <div className="p-3 rounded-xl bg-[#9FBCCF]/10 dark:bg-[#9FBCCF]/5">
+              <div className="p-4 rounded-2xl bg-[#9FBCCF]/10 dark:bg-[#9FBCCF]/5">
                 <h3 className="font-medium mb-2">Features</h3>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
@@ -304,7 +304,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
             <div className="space-y-4">
               <Button
                 variant="outline"
-                className="w-full justify-between h-auto p-4"
+                className="w-full justify-between h-auto p-4 rounded-2xl"
                 onClick={() => setFormData({ ...formData, plan: "rent-free" })}
               >
                 <div className="text-left">
@@ -322,7 +322,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
 
               <Button
                 variant="outline"
-                className="w-full justify-between h-auto p-4"
+                className="w-full justify-between h-auto p-4 rounded-2xl"
                 onClick={() => setFormData({ ...formData, plan: "main-character" })}
               >
                 <div className="text-left">
@@ -367,7 +367,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] p-0 gap-0 bg-background/95 backdrop-blur-xl">
+      <DialogContent className="sm:max-w-[425px] p-0 gap-0 bg-background/95 backdrop-blur-xl rounded-2xl border-0">
         <DialogTitle className="sr-only">{steps[currentStep].title}</DialogTitle>
         {steps[currentStep].showProgress && (
           <div className="px-6 pt-6 pb-2">
@@ -382,13 +382,13 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                className="flex-1 bg-[#C9EDA8]/10 hover:bg-[#C9EDA8]/20 text-[#C9EDA8]"
+                className="flex-1 bg-[#C9EDA8]/10 hover:bg-[#C9EDA8]/20 text-[#C9EDA8] rounded-2xl"
                 onClick={handleBack}
               >
                 oh wait!
               </Button>
               <Button
-                className="flex-1 bg-[#C9EDA8] hover:bg-[#C9EDA8]/90 text-[#272727]"
+                className="flex-1 bg-[#C9EDA8] hover:bg-[#C9EDA8]/90 text-[#272727] rounded-2xl"
                 onClick={handleNext}
               >
                 next
@@ -400,7 +400,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
         {currentStep === steps.length - 1 && (
           <div className="p-6 pt-2">
             <Button
-              className="w-full bg-[#C9EDA8] hover:bg-[#C9EDA8]/90 text-[#272727]"
+              className="w-full bg-[#C9EDA8] hover:bg-[#C9EDA8]/90 text-[#272727] rounded-2xl"
               onClick={handleNext}
             >
               let's gooo!
