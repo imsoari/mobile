@@ -4,7 +4,7 @@ import { Eye, EyeOff, Sparkles, Lock, User, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { colors } from "@/lib/colors"
 
 interface OnboardingModalProps {
@@ -15,7 +15,7 @@ interface OnboardingModalProps {
 const steps = [
   {
     id: "splash",
-    title: "",
+    title: "Welcome to Soari",
     showProgress: false,
   },
   {
@@ -368,6 +368,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] p-0 gap-0 bg-background/95 backdrop-blur-xl">
+        <DialogTitle className="sr-only">{steps[currentStep].title}</DialogTitle>
         {steps[currentStep].showProgress && (
           <div className="px-6 pt-6 pb-2">
             <Progress value={progress} className="h-1" />
