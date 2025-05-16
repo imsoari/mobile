@@ -6,7 +6,7 @@ import { Eye, EyeOff, ArrowRight, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
 interface OnboardingStep {
@@ -128,6 +128,7 @@ export default function OnboardingPage() {
       {/* Onboarding Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-[425px] bg-white/10 backdrop-blur-xl border-white/20">
+          <DialogTitle className="sr-only">Onboarding</DialogTitle>
           {/* Progress bar */}
           <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden rounded-t-lg">
             <div
