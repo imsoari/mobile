@@ -1,4 +1,3 @@
-```tsx
 "use client"
 
 import * as React from "react"
@@ -47,5 +46,10 @@ const DialogContent = React.forwardRef<
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-export { Dialog, DialogTrigger, DialogContent }
-```
+export {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogPortal,
+  DialogOverlay
+}
