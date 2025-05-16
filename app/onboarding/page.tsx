@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
 const onboardingSteps = [
   {
@@ -147,7 +147,7 @@ export default function OnboardingPage() {
           {/* Content */}
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              <h1 className="text-2xl font-light">{currentStepData.title}</h1>
+              <DialogTitle className="text-2xl font-light">{currentStepData.title}</DialogTitle>
               {currentStepData.subtitle && (
                 <p className="text-[#F5FAFA]/60">{currentStepData.subtitle}</p>
               )}
