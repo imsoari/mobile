@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Lock, Ghost, Sparkles, MessageCircle, Calendar, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
 
 interface OnboardingModalProps {
   open: boolean
@@ -54,6 +55,24 @@ const steps = [
   },
 ]
 
+const planFeatures = {
+  "rent-free": [
+    "3 active situations",
+    "Basic ghost meter",
+    "Standard Soari chat",
+    "Basic insights",
+  ],
+  "main-character": [
+    "10 active situations",
+    "Advanced ghost meter",
+    "Priority Soari chat",
+    "Date night suggestions",
+    "Detailed insights",
+    "Custom themes",
+    "Priority support",
+  ],
+}
+
 export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
@@ -66,7 +85,9 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
     plan: "rent-free",
   })
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [usernameError, setUsernameError] = useState("")
 
   useEffect(() => {
     if (open) {
@@ -113,6 +134,19 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
     if (/[0-9]/.test(password)) strength += 25
     if (/[^A-Za-z0-9]/.test(password)) strength += 25
     setPasswordStrength(strength)
+  }
+
+  const validateUsername = (username: string) => {
+    if (username.length > 8) {
+      setUsernameError("Username must be 8 characters or less")
+      return false
+    }
+    if (/[^a-zA-Z0-9]/.test(username)) {
+      setUsernameError("Only letters and numbers allowed")
+      return false
+    }
+    setUsernameError("")
+    return true
   }
 
   const getStepContent = () => {
@@ -175,6 +209,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
+                className="placeholder:text-muted-foreground/70"
               />
               <Input
                 type="email"
@@ -183,6 +218,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
+                className="placeholder:text-muted-foreground/70"
               />
             </div>
           </div>
@@ -201,6 +237,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
             <div className="space-y-3">
               <div className="space-y-2">
                 <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
@@ -209,6 +246,7 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
                       setFormData({ ...formData, password: e.target.value })
                       updatePasswordStrength(e.target.value)
                     }}
+                    className="pl-10 placeholder:text-muted-foreground/70"
                   />
                   <Button
                     variant="ghost"
@@ -233,14 +271,30 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
                     : "Weak"}
                 </p>
               </div>
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
-                }
-              />
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    setFormData({ ...formData, confirmPassword: e.target.value })
+                  }
+                  className="pl-10 placeholder:text-muted-foreground/70"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         )
@@ -257,16 +311,29 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
 
             <div className="space-y-3">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-20 h-20 rounded-full bg-[#9FBCCF]/10 dark:bg-[#9FBCCF]/5" />
-                <Button variant="outline" size="sm">Upload Photo</Button>
+                <div className="w-20 h-20 rounded-full bg-[#9FBCCF]/10 dark:bg-[#9FBCCF]/5 flex items-center justify-center text-muted-foreground/70">
+                  tap to upload
+                </div>
               </div>
-              <Input
-                placeholder="Username"
-                value={formData.username}
-                onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
-                }
-              />
+              <div className="space-y-1">
+                <Input
+                  placeholder="@username"
+                  value={formData.username}
+                  onChange={(e) => {
+                    const value = e.target.value.replace("@", "")
+                    if (validateUsername(value)) {
+                      setFormData({ ...formData, username: value })
+                    }
+                  }}
+                  className="placeholder:text-muted-foreground/70"
+                />
+                {usernameError && (
+                  <p className="text-xs text-[#E57373]">{usernameError}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  8 characters max, letters and numbers only
+                </p>
+              </div>
             </div>
           </div>
         )
@@ -284,40 +351,57 @@ export function OnboardingModal({ open, onOpenChange }: OnboardingModalProps) {
             <div className="space-y-3">
               <Button
                 variant="outline"
-                className="w-full justify-between h-auto p-3 rounded-xl"
+                className={`w-full justify-between h-auto p-4 rounded-xl ${
+                  formData.plan === "rent-free" ? "ring-2 ring-[#9FBCCF]" : ""
+                }`}
                 onClick={() => setFormData({ ...formData, plan: "rent-free" })}
               >
-                <div className="text-left">
-                  <div className="font-medium">Rent Free</div>
-                  <div className="text-sm text-muted-foreground">$0/month</div>
+                <div className="text-left flex-1">
+                  <div className="font-medium mb-2">Rent Free</div>
+                  <div className="text-2xl font-bold mb-3">$0/mo</div>
+                  <div className="space-y-2">
+                    {planFeatures["rent-free"].map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm text-left">
+                        <Ghost className="h-4 w-4 text-[#9FBCCF]" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div
-                  className={`w-4 h-4 rounded-full border-2 ${
-                    formData.plan === "rent-free"
-                      ? "bg-[#C9EDA8] border-[#C9EDA8]"
-                      : "border-muted"
-                  }`}
-                />
               </Button>
 
               <Button
                 variant="outline"
-                className="w-full justify-between h-auto p-3 rounded-xl"
+                className={`w-full justify-between h-auto p-4 rounded-xl ${
+                  formData.plan === "main-character" ? "ring-2 ring-[#B3A9C6]" : ""
+                }`}
                 onClick={() => setFormData({ ...formData, plan: "main-character" })}
               >
-                <div className="text-left">
-                  <div className="font-medium">Main Character</div>
-                  <div className="text-sm text-muted-foreground">
-                    $9.99/month
+                <div className="text-left flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="font-medium">Main Character</div>
+                    <Badge className="bg-[#B3A9C6]/20 text-[#B3A9C6]">Popular</Badge>
+                  </div>
+                  <div className="text-2xl font-bold mb-3">$9.99/mo</div>
+                  <div className="space-y-2">
+                    {planFeatures["main-character"].map((feature, index) => {
+                      let icon
+                      if (feature.includes("ghost")) icon = Ghost
+                      else if (feature.includes("chat")) icon = MessageCircle
+                      else if (feature.includes("date")) icon = Calendar
+                      else if (feature.includes("insights")) icon = Sparkles
+                      else icon = Star
+
+                      const Icon = icon
+                      return (
+                        <div key={index} className="flex items-center gap-2 text-sm text-left">
+                          <Icon className="h-4 w-4 text-[#B3A9C6]" />
+                          <span>{feature}</span>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
-                <div
-                  className={`w-4 h-4 rounded-full border-2 ${
-                    formData.plan === "main-character"
-                      ? "bg-[#C9EDA8] border-[#C9EDA8]"
-                      : "border-muted"
-                  }`}
-                />
               </Button>
             </div>
           </div>
